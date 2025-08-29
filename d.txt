@@ -1,0 +1,31 @@
+pose-coach-backend/
+├─ app/
+│  ├─ __init__.py
+│  ├─ api.py                    # /score, /upload_reference, /upload_video, /extract_keypoints
+│  ├─ config.py                 # ค่าคงที่/พาธ DATA_DIR
+│  ├─ extractor.py              # อ่านวิดีโอ → MediaPipe → map เป็น MoveNet17 keypoints
+│  ├─ refs.py                   # โหลด/บันทึก ref + สร้าง/โหลดสถิติ μ,σ (+ cache)
+│  ├─ preprocessing.py          # smooth, filter_low_conf, center, scale, rotate, pipeline
+│  ├─ features.py               # compute_angles, pairwise_bone_vectors, compute_geom
+│  ├─ segmentation.py           # label_phases + ตัวนับ reps แบบสตรีม
+│  ├─ matching.py               # DTW + frame mapping + warp
+│  ├─ scoring.py                # angle-based, shape-based, aggregate 0–100
+│  ├─ feedback.py               # แปลง deviation → coaching อัตโนมัติ
+│  ├─ schemas.py                # Pydantic models สำหรับ request/response
+│  └─ utils.py                  # ฟังก์ชัน geometry/vector/filters ทั่วไป
+├─ references/
+│  ├─ squat/
+│  │  ├─ ref_squat_lv1.json     # ตัวอย่าง ref (สร้างจาก /upload_video หรือ /upload_reference)
+│  │  └─ stats_squat.json       # μ,σ ต่อมุม×เฟส (autogen)
+│  └─ pushup/
+├─ scripts/
+│  ├─ build_ref_stats.py        # (ออปชัน) สร้างสถิติจาก ref หลายไฟล์แบบ batch
+│  └─ mock_client.py            # ยิง /upload_video, /extract_keypoints, /score ทดสอบ
+├─ tests/
+│  ├─ test_preprocessing.py
+│  ├─ test_segmentation.py
+│  └─ test_scoring.py
+├─ .env.example                 # DATA_DIR=./references, LOG_LEVEL=INFO ...
+├─ requirements.txt             # fastapi, uvicorn, numpy, scipy, pydantic, orjson, mediapipe, opencv-python-headless
+├─ README.md                    # วิธีรันเซิร์ฟเวอร์ + ตัวอย่าง curl
+└─ run.sh                       # uvicorn app.api:app --reload --port 8000

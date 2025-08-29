@@ -1,0 +1,96 @@
+/* -----------------------------
+   🌐 Global Styles
+------------------------------ */
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #0b0f14;
+  color: #e7eef7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ลิงก์ */
+a {
+  color: #4dabf7;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ปุ่มพื้นฐาน */
+button {
+  cursor: pointer;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background-color: #1f2937;
+  color: white;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+button:hover {
+  background-color: #374151;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input & Select */
+input, select {
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #111;
+  color: #fff;
+  font-size: 14px;
+}
+input:focus, select:focus {
+  border-color: #4dabf7;
+  outline: none;
+}
+
+/* Card Layout */
+.card {
+  background-color: #111827;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.flex-row {
+  flex-direction: row;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.gap-4 {
+  gap: 16px;
+}

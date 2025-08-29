@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+numpy
+orjson
+pydantic>=2.5
+python-dotenv

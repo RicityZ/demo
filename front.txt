@@ -1,0 +1,165 @@
+pose-coach-frontend/
+├─ public/
+│  └─ icons/                      # ไอคอน, manifest, favicon
+├─ src/
+│  ├─ app/
+│  │  ├─ routes.tsx              # เส้นทางหน้า (ถ้ามีหลายหน้า)
+│  │  └─ store.ts                # global state (Zustand/Context): session, exercise, scores
+│  ├─ pages/
+│  │  ├─ Home.tsx                # เลือกท่า, ปุ่มเริ่ม
+│  │  ├─ Coach.tsx               # หน้าหลัก: กล้อง + วิดีโอสาธิต + คะแนน/feedback
+│  │  └─ Settings.tsx            # ตั้งค่า FPS, ความละเอียด, กล้อง, ภาษา (ออปชัน)
+│  ├─ components/
+│  │  ├─ CameraView.tsx          # เปิดกล้อง + แสดง feed
+│  │  ├─ VideoDemo.tsx           # เล่นวิดีโอสาธิต (รับ videoURL)
+│  │  ├─ SkeletonOverlay.tsx     # วาดโครงกระดูกทับกล้อง/วิดีโอ (Canvas)
+│  │  ├─ ScorePanel.tsx          # คะแนนรวม, angle/shape, rep, phase
+│  │  ├─ FeedbackPanel.tsx       # ข้อความแนะนำ, bullet tips
+│  │  ├─ ExercisePicker.tsx      # เลือกท่า/ระดับ
+│  │  └─ Toolbar.tsx             # ปุ่ม Start/Stop/Reset/Record ฯลฯ
+│  ├─ services/
+│  │  ├─ api.ts                  # เรียก backend: /reference /stats /reference_media
+│  │  └─ cache.ts                # cache reference/stats ใน IndexedDB/Memory
+│  ├─ ml/
+│  │  ├─ detector.ts             # โหลด/สร้าง MoveNet/MediaPipe (TF.js/WebGL)
+│  │  ├─ preprocess.ts           # smooth/filter/normalize keypoints
+│  │  ├─ features.ts             # computeAngles, boneVectors
+│  │  ├─ segmentation.ts         # labelPhases, repCounter (FSM)
+│  │  ├─ dtw.ts                  # DTW (Sakoe–Chiba band)
+│  │  ├─ scoring.ts              # angleScore(z-score μ,σ), shapeScore, aggregate
+│  │  ├─ feedback.ts             # deviation → coaching text (ไทย/EN)
+│  │  └─ types.ts                # KP, Angles, Phases, Scores, Stats schema
+│  ├─ hooks/
+│  │  ├─ useCamera.ts            # จัดการ getUserMedia / switch camera / FPS
+│  │  ├─ usePoseStream.ts        # loop: estimatePoses → keypoints stream
+│  │  └─ useCoachLoop.ts         # main loop: preprocess → features → DTW → score → feedback
+│  ├─ utils/
+│  │  ├─ draw.ts                 # ฟังก์ชันวาด skeleton/labels ลง canvas
+│  │  └─ time.ts                 # sync เวลา video ↔ reference (progress bar)
+│  ├─ styles/
+│  │  └─ index.css               # Tailwind / global styles
+│  ├─ env.d.ts                   # type ของ ENV (Vite)
+│  ├─ main.tsx
+│  └─ App.tsx
+├─ .env                          # VITE_API_BASE=http://localhost:8000
+├─ index.html
+├─ package.json
+└─ vite.config.ts
+
+
+หน้าที่หลักแต่ละส่วน (สั้น ๆ)
+
+services/api.ts: ดึง reference, stats, reference_media (แคชผล, รองรับ ETag/Cache-Control)
+
+ml/: รวม logic ทั้งหมดบนเครื่อง (ไม่เรียก backend มาคิด)
+
+detector.ts โหลดโมเดล (MoveNet Lightning แนะนำ)
+
+preprocess.ts EMA/moving average + normalize (center/scale/rotate)
+
+dtw.ts จัดเวลา user↔reference
+
+scoring.ts z-score ต่อมุม×เฟส (ใช้ μ,σ จาก /stats) + aggregate 0–100
+
+segmentation.ts FSM นับ reps + label เฟส
+
+feedback.ts แมป deviation → ข้อความ
+
+components/: แยก UI ชัดเจน—เปลี่ยน/รีดีไซน์ง่าย
+
+hooks/: แยก loops/side-effects ออกจาก UI ให้เทสต์/ดูแลง่าย
+
+app/store.ts: เก็บ state รวม (exercise เลือกไว้, sessionId, scores, reps, phase, settings)
+
+โฟลว์ในหน้า Coach.tsx (ระดับสูง)
+
+เลือกท่า → โหลด reference + stats + videoURL (services/api) → แคช
+
+useCamera เปิดกล้อง → usePoseStream เอา keypoints ต่อเนื่อง
+
+useCoachLoop ประมวลผล: preprocess → features → DTW → score → feedback → อัปเดต store
+
+UI อัปเดต: CameraView + SkeletonOverlay, VideoDemo, ScorePanel, FeedbackPanel
+
+ENV/Config ที่ต้องมี
+
+VITE_API_BASE = URL backend (serve read-only assets)
+
+ตั้งค่า HTTPS ใน dev (จำลองผ่าน Vite plugin/localhost) เพื่อให้ getUserMedia ทำงานดีบนบางเบราว์เซอร์
+
+Performance Tips
+
+Resolution กล้อง 720p พอ (fps สูงกว่าและเบากว่า 1080p)
+
+ส่งผ่าน WebGL backend ของ tfjs, เปิด Hardware Acceleration
+
+Batch/Window 1–2 วินาทีสำหรับ DTW (เลื่อนไปข้างหน้าแบบ streaming)
+
+ใช้ requestAnimationFrame หรือ setInterval ~100–300ms สำหรับ scoring UI
+
+Milestones ที่ทำทีละสเต็ป
+
+MVP: เปิดกล้อง + แสดง skeleton + โหลด/เล่นวิดีโอสาธิต
+
+เพิ่ม features → DTW → scores & reps (ค่าพื้นฐาน)
+
+เพิ่ม feedback + ปุ่มเลือกท่า/ระดับ + settings (FPS/ความละเอียด)
+
+คุม cache/versioning ของ /stats & /reference (ตรวจ ETag/เวอร์ชัน)
+
+Hardening: error states, permission กล้อง, fallback skeleton ถ้าวิดีโอล่ม
+
+ถ้าต้องการ ผมทำ ไฟล์สเกลตัน (เปล่า ๆ) ให้ตามโครงนี้เลยก็ได้—คุณเอาไปเติมโค้ดทีละส่วนได้ทันที 🎯
+
+
+
+pose-coach-frontend/
+├─ .env # VITE_API_BASE=http://localhost:8000
+├─ index.html
+├─ package.json
+├─ tsconfig.json
+├─ vite.config.ts
+├─ public/
+│ └─ icons/
+│ ├─ favicon.ico
+│ └─ manifest.json
+└─ src/
+├─ app/
+│ ├─ routes.tsx
+│ └─ store.ts
+├─ pages/
+│ ├─ Home.tsx
+│ ├─ Coach.tsx
+│ └─ Settings.tsx
+├─ components/
+│ ├─ CameraView.tsx
+│ ├─ VideoDemo.tsx
+│ ├─ SkeletonOverlay.tsx
+│ ├─ ScorePanel.tsx
+│ ├─ FeedbackPanel.tsx
+│ ├─ ExercisePicker.tsx
+│ └─ Toolbar.tsx
+├─ services/
+│ ├─ api.ts
+│ └─ cache.ts
+├─ ml/
+│ ├─ detector.ts
+│ ├─ preprocess.ts
+│ ├─ features.ts
+│ ├─ segmentation.ts
+│ ├─ dtw.ts
+│ ├─ scoring.ts
+│ ├─ feedback.ts
+│ └─ types.ts
+├─ hooks/
+│ ├─ useCamera.ts
+│ ├─ usePoseStream.ts
+│ └─ useCoachLoop.ts
+├─ utils/
+│ ├─ draw.ts
+│ └─ time.ts
+├─ styles/
+│ └─ index.css
+├─ env.d.ts
+├─ main.tsx
+└─ App.tsx

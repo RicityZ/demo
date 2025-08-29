@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0b0f14" />
+    <link rel="icon" href="/public/icons/favicon.ico" />
+    <link rel="manifest" href="/public/icons/manifest.json" />
+    <title>Pose Coach</title>
+    <style>
+      /* กันหน้าโหลดขาวโพลน ก่อน React mount */
+      html,body,#root{height:100%} body{margin:0;background:#0b0f14;color:#e7eef7;font-family:ui-sans-serif,system-ui}
+      .boot{display:flex;align-items:center;justify-content:center;height:100%;opacity:.8}
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="boot">กำลังเริ่มระบบ…</div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
